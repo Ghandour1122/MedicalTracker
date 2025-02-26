@@ -1,28 +1,38 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
 import { ProtectedRoute } from "./lib/protected-route";
-import { AuthProvider } from "./hooks/use-auth";
+import { AuthProvider, useAuth } from "./hooks/use-auth";
 import ProjectOwnerDashboard from "./pages/project-owner/dashboard";
 import DoctorDashboard from "./pages/doctor/dashboard";
 import PatientSearch from "./pages/patient/search";
 import { UserRole } from "@shared/schema";
 
-function RoleBasedRoute({ role, path, component: Component }: { role: UserRole; path: string; component: React.ComponentType }) {
+function RoleBasedRoute({ 
+  role, 
+  path, 
+  component: Component 
+}: { 
+  role: typeof UserRole[keyof typeof UserRole]; 
+  path: string; 
+  component: React.ComponentType 
+}) {
   return (
-    <ProtectedRoute 
-      path={path} 
-      component={() => {
+    <Route path={path}>
+      {() => {
         const { user } = useAuth();
-        if (user?.role !== role) {
+        if (!user) {
+          return <Redirect to="/auth" />;
+        }
+        if (user.role !== role) {
           return <Redirect to="/" />;
         }
         return <Component />;
       }}
-    />
+    </Route>
   );
 }
 
