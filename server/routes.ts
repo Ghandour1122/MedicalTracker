@@ -1,10 +1,10 @@
-import type { Express, Request } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { UserRole } from "@shared/schema";
 
-function ensureRole(roles: UserRole[]) {
+function ensureRole(roles: (typeof UserRole)[keyof typeof UserRole][]) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     if (!roles.includes(req.user.role)) return res.sendStatus(403);
@@ -17,9 +17,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Project Owner Routes
   app.get("/api/doctors", ensureRole([UserRole.PROJECT_OWNER]), async (req, res) => {
-    const doctors = Array.from(storage.users.values()).filter(
-      (user) => user.role === UserRole.DOCTOR
-    );
+    const doctors = await storage.getDoctors();
     res.json(doctors);
   });
 
@@ -30,11 +28,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/clinics", ensureRole([UserRole.DOCTOR]), async (req, res) => {
-    const clinic = await storage.createClinic({
-      ...req.body,
-      doctorId: req.user.id,
-    });
-    res.json(clinic);
+    try {
+      const clinic = await storage.createClinic({
+        ...req.body,
+        doctorId: req.user.id,
+      });
+      res.json(clinic);
+    } catch (error) {
+      console.error("Error creating clinic:", error);
+      res.status(500).json({ message: "Failed to create clinic" });
+    }
   });
 
   app.get("/api/appointments/doctor", ensureRole([UserRole.DOCTOR]), async (req, res) => {
@@ -44,9 +47,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Patient Routes
   app.get("/api/doctors/search", async (req, res) => {
-    const doctors = Array.from(storage.users.values()).filter(
-      (user) => user.role === UserRole.DOCTOR
-    );
+    const doctors = await storage.getDoctors();
     res.json(doctors);
   });
 

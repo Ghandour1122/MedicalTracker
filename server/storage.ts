@@ -2,7 +2,8 @@ import {
   users, clinics, appointments,
   type User, type InsertUser, 
   type Clinic, type InsertClinic,
-  type Appointment, type InsertAppointment 
+  type Appointment, type InsertAppointment,
+  UserRole 
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -25,6 +26,7 @@ export interface IStorage {
   createClinic(clinic: InsertClinic): Promise<Clinic>;
   updateClinic(id: number, data: Partial<Clinic>): Promise<Clinic>;
   deleteClinic(id: number): Promise<void>;
+  getDoctors(): Promise<User[]>;
 
   // Appointment operations
   getAppointmentsByDoctor(doctorId: number): Promise<Appointment[]>;
@@ -77,9 +79,17 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(clinics).where(eq(clinics.doctorId, doctorId));
   }
 
-  async createClinic(clinic: InsertClinic): Promise<Clinic> {
-    const [newClinic] = await db.insert(clinics).values(clinic).returning();
-    return newClinic;
+  async createClinic(insertClinic: InsertClinic): Promise<Clinic> {
+    try {
+      const [newClinic] = await db
+        .insert(clinics)
+        .values(insertClinic)
+        .returning();
+      return newClinic;
+    } catch (error) {
+      console.error("Database error creating clinic:", error);
+      throw error;
+    }
   }
 
   async updateClinic(id: number, data: Partial<Clinic>): Promise<Clinic> {
@@ -124,6 +134,13 @@ export class DatabaseStorage implements IStorage {
       .where(eq(appointments.id, id))
       .returning();
     return appointment;
+  }
+
+  async getDoctors(): Promise<User[]> {
+    return await db
+      .select()
+      .from(users)
+      .where(eq(users.role, UserRole.DOCTOR));
   }
 }
 

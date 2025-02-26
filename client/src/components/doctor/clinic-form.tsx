@@ -9,9 +9,12 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export function ClinicForm() {
   const { toast } = useToast();
+  const [isOpen, setIsOpen] = useState(false);
+
   const form = useForm({
     resolver: zodResolver(insertClinicSchema),
     defaultValues: {
@@ -39,6 +42,7 @@ export function ClinicForm() {
         description: "Clinic has been created successfully.",
       });
       form.reset();
+      setIsOpen(false);
     },
     onError: (error: Error) => {
       toast({
@@ -50,7 +54,7 @@ export function ClinicForm() {
   });
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <Plus className="h-4 w-4" />
