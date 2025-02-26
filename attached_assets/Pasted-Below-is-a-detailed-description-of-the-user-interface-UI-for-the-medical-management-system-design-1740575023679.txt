@@ -1,0 +1,130 @@
+Below is a detailed description of the user interface (UI) for the medical management system, designed to provide the UI/UX team with a clear starting point. The system supports three main user roles—Project Owner, Doctors, and Patients—each with distinct interfaces tailored to their needs. The goal is to create an intuitive, secure, and efficient experience that works seamlessly across desktop and mobile devices.
+1. Project Owner Panel
+The Project Owner oversees the system, managing doctors and the database. Their UI should offer administrative control with a clean, organized layout.
+Dashboard
+Purpose: Provide a high-level overview of the system.
+Components:
+Summary metrics: total number of doctors, active clinics, and system status (e.g., last backup date).
+Quick action buttons: "Add New Doctor," "View Reports," "Backup Database."
+Layout: Metrics in cards at the top, quick actions below.
+Doctor Management
+Doctor List:
+Table format: columns for name, specialty, contact info, and status (active/inactive).
+Filters: search by name or specialty, sort by column.
+Action buttons per row: "View Details," "Edit," "Delete."
+Add/Edit Doctor:
+Form fields: name, specialty, email, phone, login credentials (username, password).
+Validation: ensure required fields are filled and email is unique.
+Delete Confirmation: Modal with a warning before deletion.
+Database Management
+Backup Database:
+Button: "Create Backup Now."
+Log: List of past backups with timestamps and download links.
+Restore Database:
+Dropdown: Select a backup to restore.
+Warning modal: Confirm overwrite risk before proceeding.
+System Settings
+Purpose: Configure global preferences.
+Components:
+Fields: time zone (dropdown), currency (dropdown), notification settings (toggles).
+Save/Cancel buttons for changes.
+Reports
+Features:
+Generate reports on system usage (e.g., appointments booked, doctor activity).
+Filters: date range, specific doctor, or clinic.
+Visualization: Bar or pie charts for quick insights.
+Export: Print-friendly view (no file export for compliance).
+2. Doctor Panel
+Doctors manage clinics, finances, reservations, and patient records. Their UI should prioritize efficiency and quick access to critical tasks.
+Dashboard
+Purpose: Show daily priorities and stats.
+Components:
+Calendar widget: Today’s appointments across all clinics.
+Stats: Patients seen this week, upcoming appointments, unread notifications.
+Quick search bar: Find patients or appointments instantly.
+Layout: Calendar on the left, stats and notifications on the right.
+Clinic Management
+Clinic List:
+Table: Clinic name, location, status, with buttons for "Edit," "Delete," "Manage."
+"Add Clinic" button: Opens a form (name, address, contact info).
+Clinic Details:
+Schedule Management:
+Weekly grid: Set operating hours (e.g., Mon-Fri, 9 AM-5 PM).
+Appointment slots: Define duration (e.g., 30 minutes).
+Resource Management:
+List: Resources (e.g., Room 1, X-ray machine) with "Add," "Edit," "Delete" options.
+Form: Resource name, description.
+Financial Management
+Expenses:
+Form: Category (dropdown), amount, date, description, optional receipt upload.
+List: Filterable by date or category, with totals displayed.
+Income:
+Auto-tracked from appointments.
+Report: Filter by date or clinic, with line charts for trends.
+Patient Management
+Search Patients:
+Search bar: Query by name, ID, email, or phone.
+Results: List with clickable patient names.
+Patient Record View:
+Sections:
+Demographics: Name, age, gender, contact info.
+Medical History: Chronological list (illnesses, surgeries, allergies).
+Diagnoses/Treatments: Past entries with dates and details.
+Emergency Categories: Highlighted (e.g., red icon for allergies, blue for chronic conditions).
+Summary Bar: Top section with current meds, allergies, emergency contacts.
+Add/Update Record:
+Form: Add diagnosis, treatment, or note (timestamped, signed by doctor).
+Edit button for existing entries.
+Reservations
+Calendar View:
+Interactive calendar: Filter by clinic or date, color-code by status (confirmed, pending).
+Click a slot: See patient name, time, and options (Confirm, Cancel, Reschedule).
+Management:
+Modal for rescheduling: Pick new date/time from available slots.
+Cancel confirmation: Notify patient via email (planned feature).
+3. Patient Reservation Page
+Patients book appointments via a public, mobile-friendly interface. The UI should be simple and minimize friction.
+Doctor Search/List
+Features:
+Search bar: Filter by name, specialty, or location.
+List: Cards with doctor photo, name, specialty, clinic locations, "Book Now" button.
+Doctor Profile
+Components:
+Profile: Photo, name, specialty, bio.
+Clinics: List with addresses and "Book Appointment" buttons.
+Appointment Booking
+Flow:
+Select Clinic: Dropdown or cards listing doctor’s clinics.
+Select Date/Time: Calendar picker, followed by time slots (green for available, gray for booked).
+Enter Details: Form with name, email, phone, optional reason for visit.
+Confirmation: Summary page with date, time, doctor, clinic, and instructions (e.g., "Arrive 15 minutes early").
+Features:
+"Next Available Slot" button if selected day is full.
+Clear feedback: Disable booked slots, highlight selections.
+General UI Design Guidelines
+Navigation
+Project Owner/Doctor Panels: Sidebar with icons and labels (e.g., Dashboard, Clinics, Patients).
+Patient Reservation: Step-by-step wizard or single-page flow with progress indicators.
+Security
+Login Pages: For Project Owner and Doctors—username, password, optional 2FA toggle.
+Reservation Page: CAPTCHA to prevent spam bookings.
+Accessibility
+WCAG-compliant: High contrast (e.g., dark text on light backgrounds), keyboard navigation, screen reader labels.
+Tooltips for complex features (e.g., resource management).
+Visual Style
+Colors: Calming palette (blues, whites, grays).
+Typography: Clean, legible fonts (e.g., 16px minimum for body text).
+Layout: Ample whitespace, avoid clutter, prioritize key info.
+Responsive Design
+Fully functional on mobile: Stack elements vertically, use touch-friendly buttons (44x44px minimum).
+Notifications
+Doctors: In-app alerts for new bookings or cancellations.
+Patients: Confirmation email after booking (future integration).
+Additional Notes
+User Flows:
+Doctor: Dashboard → Click appointment → View patient record → Add treatment.
+Patient: Homepage → Search doctor → Pick clinic → Select time → Confirm.
+Emergency Info: In patient records, highlight critical data (e.g., allergies) for quick access.
+Patient Matching: On booking, check email/phone for existing records; doctors resolve duplicates manually.
+Scalability: Plan for multi-language and time zone support (display local clinic times).
+This description provides a structured foundation for the UI/UX team to create wireframes and mockups. Focus on clean design, user-friendly flows, and accessibility to ensure the system meets the needs of all users effectively.
