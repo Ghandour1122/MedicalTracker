@@ -32,8 +32,16 @@ export function ClinicForm() {
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
-      const res = await apiRequest("POST", "/api/clinics", data);
-      return res.json();
+      try {
+        console.log("Submitting clinic data:", data);
+        const res = await apiRequest("POST", "/api/clinics", data);
+        const json = await res.json();
+        console.log("Server response:", json);
+        return json;
+      } catch (error) {
+        console.error("Error creating clinic:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/clinics"] });
@@ -45,6 +53,7 @@ export function ClinicForm() {
       setIsOpen(false);
     },
     onError: (error: Error) => {
+      console.error("Mutation error:", error);
       toast({
         title: "Error",
         description: error.message,
@@ -52,6 +61,14 @@ export function ClinicForm() {
       });
     },
   });
+
+  const onSubmit = async (data: any) => {
+    try {
+      await mutation.mutateAsync(data);
+    } catch (error) {
+      console.error("Form submission error:", error);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -66,7 +83,7 @@ export function ClinicForm() {
           <DialogTitle>Add New Clinic</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
