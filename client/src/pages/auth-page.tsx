@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { insertUserSchema, UserRole } from "@shared/schema";
 import { useLocation } from "wouter";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 
 export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
@@ -36,16 +37,17 @@ export default function AuthPage() {
     },
   });
 
-  if (user) {
-    // Redirect based on role
-    const roleRoutes = {
-      [UserRole.PROJECT_OWNER]: "/",
-      [UserRole.DOCTOR]: "/doctor",
-      [UserRole.PATIENT]: "/patient",
-    };
-    setLocation(roleRoutes[user.role] || "/");
-    return null;
-  }
+  useEffect(() => {
+    if (user) {
+      // Redirect based on role
+      const roleRoutes = {
+        [UserRole.PROJECT_OWNER]: "/",
+        [UserRole.DOCTOR]: "/doctor",
+        [UserRole.PATIENT]: "/patient",
+      };
+      setLocation(roleRoutes[user.role] || "/");
+    }
+  }, [user, setLocation]);
 
   return (
     <div className="min-h-screen grid md:grid-cols-2">
