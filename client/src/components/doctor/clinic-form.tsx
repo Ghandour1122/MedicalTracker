@@ -8,7 +8,7 @@ import { insertClinicSchema } from "@shared/schema";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 
 export function ClinicForm() {
   const { toast } = useToast();
@@ -57,7 +57,7 @@ export function ClinicForm() {
           Add Clinic
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add New Clinic</DialogTitle>
         </DialogHeader>
@@ -90,6 +90,7 @@ export function ClinicForm() {
               )}
             />
             <Button type="submit" className="w-full" disabled={mutation.isPending}>
+              {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Clinic
             </Button>
           </form>

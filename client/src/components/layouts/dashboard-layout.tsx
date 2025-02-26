@@ -10,7 +10,10 @@ import {
   LogOut,
   UserPlus,
   Search,
-  FileText
+  FileText,
+  CircleDollarSign,
+  BarChart,
+  ClipboardList
 } from "lucide-react";
 import { ClinicSelector } from "../doctor/clinic-selector";
 
@@ -26,6 +29,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     [UserRole.DOCTOR]: [
       { icon: LayoutDashboard, label: "Dashboard", href: "/doctor" },
       { icon: Calendar, label: "Appointments", href: "/doctor/appointments" },
+      { icon: CircleDollarSign, label: "Financial", href: "/doctor/financial" },
+      { icon: BarChart, label: "Analytics", href: "/doctor/analytics" },
+      { icon: ClipboardList, label: "Reports", href: "/doctor/reports" },
       { icon: FileText, label: "Patient Records", href: "/doctor/patients" },
     ],
     [UserRole.PATIENT]: [
@@ -44,10 +50,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <nav className="px-4 py-2">
           {menuItems[user!.role].map((item) => (
             <Link key={item.href} href={item.href}>
-              <a className="flex items-center gap-2 px-4 py-2 text-sidebar-foreground hover:bg-sidebar-accent rounded-md">
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-2 mb-1 text-sidebar-foreground hover:bg-sidebar-accent"
+              >
                 <item.icon className="h-5 w-5" />
                 {item.label}
-              </a>
+              </Button>
             </Link>
           ))}
           <Button
