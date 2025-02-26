@@ -37,7 +37,13 @@ export default function AuthPage() {
   });
 
   if (user) {
-    setLocation("/");
+    // Redirect based on role
+    const roleRoutes = {
+      [UserRole.PROJECT_OWNER]: "/",
+      [UserRole.DOCTOR]: "/doctor",
+      [UserRole.PATIENT]: "/patient",
+    };
+    setLocation(roleRoutes[user.role] || "/");
     return null;
   }
 
