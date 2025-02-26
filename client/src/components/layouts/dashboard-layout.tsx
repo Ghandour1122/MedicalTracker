@@ -12,6 +12,7 @@ import {
   Search,
   FileText
 } from "lucide-react";
+import { ClinicSelector } from "../doctor/clinic-selector";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, logoutMutation } = useAuth();
@@ -62,6 +63,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main Content */}
       <div className="flex-1 bg-background">
+        {/* Header with clinic selector for doctors */}
+        {user?.role === UserRole.DOCTOR && (
+          <div className="border-b border-border p-4">
+            <ClinicSelector />
+          </div>
+        )}
         <main className="p-8">{children}</main>
       </div>
     </div>
