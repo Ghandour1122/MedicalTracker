@@ -75,6 +75,7 @@ export const appointmentsRelations = relations(appointments, ({ one }) => ({
   }),
 }));
 
+// Export schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -89,7 +90,10 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertClinicSchema = createInsertSchema(clinics);
 export const insertAppointmentSchema = createInsertSchema(appointments);
 
+// Export types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Clinic = typeof clinics.$inferSelect;
 export type Appointment = typeof appointments.$inferSelect;
+export type InsertClinic = typeof clinics.$inferInsert;
+export type InsertAppointment = typeof appointments.$inferInsert;
