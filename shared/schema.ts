@@ -1,6 +1,7 @@
 import { pgTable, text, serial, integer, boolean, timestamp, json } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 
 export const UserRole = {
   PROJECT_OWNER: "PROJECT_OWNER",
@@ -42,6 +43,37 @@ export const appointments = pgTable("appointments", {
   status: text("status").default("pending"),
   reason: text("reason"),
 });
+
+// Define relations
+export const usersRelations = relations(users, ({ many }) => ({
+  clinics: many(clinics),
+  doctorAppointments: many(appointments, { relationName: "doctorAppointments" }),
+  patientAppointments: many(appointments, { relationName: "patientAppointments" }),
+}));
+
+export const clinicsRelations = relations(clinics, ({ one }) => ({
+  doctor: one(users, {
+    fields: [clinics.doctorId],
+    references: [users.id],
+  }),
+}));
+
+export const appointmentsRelations = relations(appointments, ({ one }) => ({
+  patient: one(users, {
+    fields: [appointments.patientId],
+    references: [users.id],
+    relationName: "patientAppointments",
+  }),
+  doctor: one(users, {
+    fields: [appointments.doctorId],
+    references: [users.id],
+    relationName: "doctorAppointments",
+  }),
+  clinic: one(clinics, {
+    fields: [appointments.clinicId],
+    references: [clinics.id],
+  }),
+}));
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,

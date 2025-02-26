@@ -1,8 +1,16 @@
-import { User, InsertUser, Clinic, InsertClinic, Appointment, InsertAppointment } from "@shared/schema";
+import { 
+  users, clinics, appointments,
+  type User, type InsertUser, 
+  type Clinic, type InsertClinic,
+  type Appointment, type InsertAppointment 
+} from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import session from "express-session";
-import createMemoryStore from "memorystore";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 
-const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   // User operations
@@ -11,119 +19,112 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, data: Partial<User>): Promise<User>;
   deleteUser(id: number): Promise<void>;
-  
+
   // Clinic operations
   getClinicsByDoctor(doctorId: number): Promise<Clinic[]>;
   createClinic(clinic: InsertClinic): Promise<Clinic>;
   updateClinic(id: number, data: Partial<Clinic>): Promise<Clinic>;
   deleteClinic(id: number): Promise<void>;
-  
+
   // Appointment operations
   getAppointmentsByDoctor(doctorId: number): Promise<Appointment[]>;
   getAppointmentsByPatient(patientId: number): Promise<Appointment[]>;
   createAppointment(appointment: InsertAppointment): Promise<Appointment>;
   updateAppointment(id: number, data: Partial<Appointment>): Promise<Appointment>;
-  
+
   sessionStore: session.Store;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private clinics: Map<number, Clinic>;
-  private appointments: Map<number, Appointment>;
-  private currentId: { [key: string]: number };
+export class DatabaseStorage implements IStorage {
   public sessionStore: session.Store;
 
   constructor() {
-    this.users = new Map();
-    this.clinics = new Map();
-    this.appointments = new Map();
-    this.currentId = { users: 1, clinics: 1, appointments: 1 };
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
+    this.sessionStore = new PostgresSessionStore({
+      pool,
+      createTableIfMissing: true,
     });
   }
 
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId.users++;
-    const user: User = { ...insertUser, id, status: "active" };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async updateUser(id: number, data: Partial<User>): Promise<User> {
-    const user = this.users.get(id);
-    if (!user) throw new Error("User not found");
-    const updated = { ...user, ...data };
-    this.users.set(id, updated);
-    return updated;
+    const [user] = await db
+      .update(users)
+      .set(data)
+      .where(eq(users.id, id))
+      .returning();
+    return user;
   }
 
   async deleteUser(id: number): Promise<void> {
-    this.users.delete(id);
+    await db.delete(users).where(eq(users.id, id));
   }
 
   async getClinicsByDoctor(doctorId: number): Promise<Clinic[]> {
-    return Array.from(this.clinics.values()).filter(
-      (clinic) => clinic.doctorId === doctorId,
-    );
+    return await db.select().from(clinics).where(eq(clinics.doctorId, doctorId));
   }
 
   async createClinic(clinic: InsertClinic): Promise<Clinic> {
-    const id = this.currentId.clinics++;
-    const newClinic: Clinic = { ...clinic, id };
-    this.clinics.set(id, newClinic);
+    const [newClinic] = await db.insert(clinics).values(clinic).returning();
     return newClinic;
   }
 
   async updateClinic(id: number, data: Partial<Clinic>): Promise<Clinic> {
-    const clinic = this.clinics.get(id);
-    if (!clinic) throw new Error("Clinic not found");
-    const updated = { ...clinic, ...data };
-    this.clinics.set(id, updated);
-    return updated;
+    const [clinic] = await db
+      .update(clinics)
+      .set(data)
+      .where(eq(clinics.id, id))
+      .returning();
+    return clinic;
   }
 
   async deleteClinic(id: number): Promise<void> {
-    this.clinics.delete(id);
+    await db.delete(clinics).where(eq(clinics.id, id));
   }
 
   async getAppointmentsByDoctor(doctorId: number): Promise<Appointment[]> {
-    return Array.from(this.appointments.values()).filter(
-      (apt) => apt.doctorId === doctorId,
-    );
+    return await db
+      .select()
+      .from(appointments)
+      .where(eq(appointments.doctorId, doctorId));
   }
 
   async getAppointmentsByPatient(patientId: number): Promise<Appointment[]> {
-    return Array.from(this.appointments.values()).filter(
-      (apt) => apt.patientId === patientId,
-    );
+    return await db
+      .select()
+      .from(appointments)
+      .where(eq(appointments.patientId, patientId));
   }
 
   async createAppointment(appointment: InsertAppointment): Promise<Appointment> {
-    const id = this.currentId.appointments++;
-    const newAppointment: Appointment = { ...appointment, id };
-    this.appointments.set(id, newAppointment);
+    const [newAppointment] = await db
+      .insert(appointments)
+      .values(appointment)
+      .returning();
     return newAppointment;
   }
 
   async updateAppointment(id: number, data: Partial<Appointment>): Promise<Appointment> {
-    const appointment = this.appointments.get(id);
-    if (!appointment) throw new Error("Appointment not found");
-    const updated = { ...appointment, ...data };
-    this.appointments.set(id, updated);
-    return updated;
+    const [appointment] = await db
+      .update(appointments)
+      .set(data)
+      .where(eq(appointments.id, id))
+      .returning();
+    return appointment;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
